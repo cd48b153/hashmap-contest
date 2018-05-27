@@ -109,9 +109,6 @@ for (let [testname, test] of Object.entries(tests)) {
         if (name == REFERENCE_IMPL)
             continue;
 
-        if (name == 'hashtable')
-            continue;
-
         runTestCase(name);
 
         let same = compareDiffs(diffs[name], diffs[REFERENCE_IMPL]);
