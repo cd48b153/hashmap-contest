@@ -1,0 +1,9 @@
+{
+    "scripts": {
+        "test": "node src/js/test.js src/js/hashmaps/*/index.js testcases/**/*.log"
+    },
+    "devDependencies": {
+        "hashmap": "2.3.0",
+        "glob": "7.1.2"
+    }
+}
