@@ -31,4 +31,4 @@ module.exports = (impl, [lkeys, lvals], [rkeys, rvals]) => {
         diff[type] = (diff[type] || 0) + 1;
 
     return diff;
-}
+};

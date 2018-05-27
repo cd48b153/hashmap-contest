@@ -77,16 +77,19 @@ module.exports = class {
     *entries() {
         let r1 = this._root;
 
-        for (let h1 = 0; r1 && h1 < 256; h1++) {
+        for (let h1 = 0; h1 < r1.length; h1++) {
             let r2 = r1[h1];
+            if (!r2) continue;
 
-            for (let h2 = 0; r2 && h2 < 256; h2++) {
+            for (let h2 = 0; h2 < r2.length; h2++) {
                 let r3 = r2[h2];
+                if (!r3) continue;
 
-                for (let h3 = 0; r3 && h3 < 256; h3++) {
+                for (let h3 = 0; h3 < r3.length; h3++) {
                     let r4 = r3[h3];
+                    if (!r4) continue;
 
-                    for (let h4 = 0; r4 && h4 < 256; h4++) {
+                    for (let h4 = 0; h4 < r4.length; h4++) {
                         let entry = r4[h4];
 
                         if (entry)

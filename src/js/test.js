@@ -17,7 +17,6 @@ function log(...args) {
 
 log('getting hashmap implementations from', implsGlob);
 
-
 let impls = {}; // impls["es6"] = require("/src/js/hashmaps/es6/index.js")
 let tests = {}; // tests["1M-50K"] = {left: [keys, vals], right: [keys, vals]}
 
@@ -106,10 +105,11 @@ for (let [testname, test] of Object.entries(tests)) {
     runTestCase(REFERENCE_IMPL); // it's the reference and others will check against this result
     valid[REFERENCE_IMPL] = true;
 
-    let besttime = times[REFERENCE_IMPL];
-
     for (let name in impls) {
         if (name == REFERENCE_IMPL)
+            continue;
+
+        if (name == 'hashtable')
             continue;
 
         runTestCase(name);
@@ -117,18 +117,15 @@ for (let [testname, test] of Object.entries(tests)) {
         let same = compareDiffs(diffs[name], diffs[REFERENCE_IMPL]);
         !same && log('hashmap', JSON.stringify(name), 'produced a wrong diff');
         valid[name] = same;
-
-        if (same && times[name] < besttime)
-            besttime = times[name];
     }
 
     results[testname] = {};
 
     for (let name in impls)
-        results[testname][name] = valid[name] ? times[name] / besttime : 0;
+        results[testname][name] = valid[name] ? times[name] / times[REFERENCE_IMPL] : 0;
 }
 
-let colwidth = 8;
+let colwidth = 10;
 let lpad = (s, n = colwidth, c = ' ') => (c.repeat(n) + s).slice(-n);
 let cells = [];
 

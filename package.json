@@ -3,6 +3,7 @@
         "test": "node src/js/test.js src/js/hashmaps/*/index.js testcases/**/*.log"
     },
     "devDependencies": {
+        "hashtable": "^2.0.2",
         "hashmap": "2.3.0",
         "glob": "7.1.2"
     }

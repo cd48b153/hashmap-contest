@@ -15,14 +15,6 @@ module.exports = class {
         this._data[key] = obj;
     }
 
-    *keys() {
-        yield* Object.keys(this._data);
-    }
-
-    *values() {
-        yield* Object.values(this._data);
-    }
-
     *entries() {
         yield* Object.entries(this._data);
     }

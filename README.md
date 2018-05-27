@@ -30,18 +30,28 @@ Hashmaps being compared:
 - trie - the 32-bit number is considered as a 4-byte string and used to address a 4-level [trie](https://en.wikipedia.org/wiki/Trie)
 - list - the classic hashmap that uses lists for items with the same hash
 - npmjs [hashmap](https://www.npmjs.com/package/hashmap)
-- npmjs [hashtable](https://www.npmjs.com/package/hashtable)
+- npmjs [hashtable](https://www.npmjs.com/package/hashtable) - a surprisingly fragile package that needs Python 2.7, VS 2015 build tools, node-gyp and other mess configured in a very particular way - installing it will happily waste many hours of your time; moreover, at runtime it apparently corrupts memory, so it needs to be tested separately, or it just quietly crashes the node process
 
-Results are relative to the fastest hashmap: `2.50` means that this hashmap runs 2.5x slower than the fastest one. The es6 `Map` is used to verify correctness of other hashmaps.
+Results are relative to the es6 hashmap: `2.50` means that this hashmap runs 2.5x slower than `Map`. The es6 `Map` is also used to verify correctness of other hashmaps.
 
-|           |   1M-50K |
-| --------- | -------- |
-|      es6  |     1.00 |
-|  hashmap  |     1.93 |
-|    naive  |     1.30 |
-|     trie  |     2.17 |
-|     list  |          |
-| hashtable |          |
+|            |     1M-50K |
+| ---------- | ---------- |
+|        es6 |       1.00 |
+|    hashmap |       1.95 |
+|  hashtable |       2.39 |
+|       list |       1.59 |
+|      naive |       1.55 |
+|       trie |       2.13 |
+
+# Build & Run
+
+```
+git clone ...
+npm install
+npm test
+```
+
+However if you don't have all the tools for compiling the npmjs `hashtable`, then remove it from `package.json` and from `/src/js/hashmaps`.
 
 # License
 
