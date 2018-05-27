@@ -3,25 +3,27 @@
 Comparing different hashmaps that map 64-bit numbers to strings. The benchmark asks each hashmap implementation to diff two arrays with (key, value) pairs and summarize the diff by the value. Example:
 
 ```
-0x071e1c80 fchown
-0x052223c0 rename
-0x08298ec0 R_OK
-0x05eb2bf0 unlinkSync
-0x08591620 unlinkSync
-0x05e97410 fdatasync
+0x400673046f13a400 openSync
+0x40067304892cca00 watchFile
+0x4006730491a04c00 Stats
+0x400673049a84e900 FileReadStream
+0x4006730456798300 chownSync
+0x400673046f164800 mkdtempSync
+0x4006730496292b00 readFileSync
 
-0x071e1c80 fchown
-0x052223c0 rename
-0x08298ec0 R_OK
-0x05eb2bf0 unlinkSync
-0x05b480c0 close
-0x0896ebc0 mkdir
-0x053df0a0 mkdir
-0x08591620 unlinkSync
-0x05e97410 fdatasync
+0x400673046f13a400 openSync
+0x40067304892cca00 watchFile
+0x4006730491a04c00 Stats
+0x400673049a84e900 FileReadStream
+0x4006730456798300 chownSync
+0x400673046f164800 mkdtempSync
+0x4006730496292b00 readFileSync
+0x4006730456400800 chmod
+0x4006730483929900 createWriteStream
+0x4006730485bd9900 createWriteStream
 ```
 
-The diff should be `{mkdir:2, close:1}`.
+The diff should be `{createWriteStream:2, chmod:1}`.
 
 Hashmaps being compared:
 
