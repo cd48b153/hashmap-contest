@@ -1,5 +1,7 @@
 # Benchmark for JS hashmaps
 
+[![Build Status](https://travis-ci.org/cd48b153/hashmap-contest.svg?branch=master)](https://travis-ci.org/cd48b153/hashmap-contest.svg?branch=master)
+
 Comparing different hashmaps that map 64-bit numbers to strings. The benchmark asks each hashmap implementation to diff two arrays with (key, value) pairs and summarize the diff by the value. Example:
 
 ```
