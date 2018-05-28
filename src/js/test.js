@@ -40,6 +40,7 @@ for (let filepath of glob.sync(testsGlob)) {
 log('running the testcases');
 
 let results = {}; // results["1M-50K"]["es6"] = 550 ms
+let allvalid = true;
 
 let rand = (min, max) => min + ((max - min + 1) * Math.random() | 0);
 let lpad = (n, c, s) => (c.repeat(n) + s).slice(-n);
@@ -129,6 +130,9 @@ for (let [testname, testconfig] of Object.entries(tests)) {
         diffs[implname] = diff;
         valid[implname] = compareDiffs(diffs[implname], diffs[REFERENCE_IMPL]);
         log('result:', time, 'ms,', 'valid:', valid[implname]);
+        
+        if (!valid[implname])
+            allvalid = false;
     };
 
     runTestCase(REFERENCE_IMPL); // it's the reference so run it first
@@ -157,3 +161,6 @@ log('results:\n' + cells.map(
         cell => lpad(COL_WIDTH, ' ', cell))
         .join(' | ') + ' |')
     .join('\n'));
+
+log('all valid:', allvalid);
+process.exit(allvalid ? 0 : 1);
