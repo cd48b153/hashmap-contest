@@ -3,7 +3,7 @@ module.exports = class {
         this._data = new Map;
         this._i32 = new Int32Array(2);
         this._f64 = new Float64Array(this._i32.buffer);
-        this._nan = {};
+        this._nan = Object.create(null);
     }
 
     get([hi, lo]) {
@@ -12,7 +12,7 @@ module.exports = class {
 
         let key = this._f64[0];
 
-        return Number.isFinite(key) && key != 0 ?
+        return Number.isFinite(key) ?
             this._data.get(key) :
             this._nan[hi + ':' + lo];
 
@@ -24,7 +24,7 @@ module.exports = class {
 
         let key = this._f64[0];
 
-        if (Number.isFinite(key) && key != 0)
+        if (Number.isFinite(key))
             this._data.set(key, obj);
         else
             this._nan[hi + ':' + lo] = obj;
