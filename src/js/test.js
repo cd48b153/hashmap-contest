@@ -132,7 +132,7 @@ for (let [testname, testconfig] of Object.entries(tests)) {
     };
 
     runTestCase(REFERENCE_IMPL); // it's the reference so run it first
-    log('diff size:', Object.keys(diffs[REFERENCE_IMPL]).length);
+    log('diff size:', Object.values(diffs[REFERENCE_IMPL]).reduce((s, x) => s + x, 0));
 
     for (let name in impls)
         if (name != REFERENCE_IMPL)

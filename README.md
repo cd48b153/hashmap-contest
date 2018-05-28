@@ -38,14 +38,14 @@ Hashmaps being compared:
 
 Results are relative to the es6 hashmap: `2.50` means that this hashmap runs 2.5x slower than `Map`. The es6 `Map` is also used to verify correctness of other hashmaps.
 
-|            |     1M-50K |    2M-100K |      5M-5K |
+|            |     1M-50K |    2M-100K |      3M-5K |
 | ---------- | ---------- | ---------- | ---------- |
 |        es6 |       1.00 |       1.00 |       1.00 |
-|    hashmap |       2.38 |       2.29 |       2.28 |
-|       list |       1.26 |       1.31 |       1.33 |
-|      naive |       1.39 |       1.21 |       1.98 |
-|       trie |       1.62 |       2.01 |       1.72 |
-|  hashtable |       2.53 |          - |          - |
+|    hashmap |       2.20 |       2.26 |       2.29 |
+|       list |       1.33 |       1.19 |       1.29 |
+|      naive |       1.40 |       1.41 |       1.71 |
+|       trie |       1.84 |       1.48 |       1.61 |
+|  hashtable |       2.39 |       2.26 |          - |
 
 # Build & Run
 

@@ -19,10 +19,12 @@ module.exports = (impl, [lkeys, lvals], [rkeys, rvals]) => {
         let key = rkeys[i];
         let obj = rvals[i];
 
-        if (!hashmap.has(key))
+        let val = hashmap.get(key);
+
+        if (!val)
             diffmap.set(key, obj);
-        else if (hashmap.get(key) != obj)
-            throw new Error(`Mismatching values at ${key}: ${JSON.stringify(hashmap.get(key))} vs ${JSON.stringify(obj)}`);
+        else if (val != obj)
+            throw new Error(`Mismatching values at ${key}: ${JSON.stringify(val)} vs ${JSON.stringify(obj)}`);
     }
 
     let diff = {};
