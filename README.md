@@ -31,9 +31,9 @@ If keys were 32 bit, then the es6 `Map` would be hard to outperform.
 
 Hashmaps being compared:
 
-- es6-stack - the built-in [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) class stacked as `Map<Map<int, string>>` and addressed with `map.get(key_hi).get(key_lo)`
+- es6 - the built-in [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) class stacked as `Map<Map<int, string>>` and addressed with `map.get(key_hi).get(key_lo)`
 - naive - the [object literal](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics) `{}` used as a hashmap; the two 32 bit keys are stringified and merged
-- trie - the 64 bit key is convered to a 32-bit hash, which is considered as a 4-byte string and used to address a 4-level [trie](https://en.wikipedia.org/wiki/Trie) + a list for items with the same hash; it's addressed like `trie[h1][h2][h3][h4][17].value`
+- trie - the 64 bit key is split into 4-30-30 bit sequence which is used to address a 3-level [trie](https://en.wikipedia.org/wiki/Trie)
 - list - the classic hashmap that uses lists for items with the same hash
 - npmjs [hashmap](https://www.npmjs.com/package/hashmap) stacked like `HashMap<HashMap<int, string>>`
 
