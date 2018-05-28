@@ -4,7 +4,7 @@ const glob = require('glob');
 
 const diffByAddrGroupByType = require('./diff');
 
-const COL_WIDTH = 10;
+const COL_WIDTH = 12;
 const DEFAULT_TAGS = Object.keys(fs);
 const REFERENCE_IMPL = 'naive';
 

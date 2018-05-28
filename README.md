@@ -31,21 +31,25 @@ If keys were 32 bit, then the es6 `Map` would be hard to outperform.
 
 Hashmaps being compared:
 
-- es6 - the built-in [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) class stacked as `Map<Map<int, string>>` and addressed with `map.get(key_hi).get(key_lo)`
+- es6-stack - the built-in [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) class stacked as `Map<Map<int, string>>` and addressed with `map.get(key_hi).get(key_lo)`
+- es6-concat - the same es6 `Map`, but now the two 32 bit keys are stringified and concatenated
 - naive - the [object literal](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics) `{}` used as a hashmap; the two 32 bit keys are stringified and merged
+- naive-stack - now the two keys aren't concatenated, but used to address a 2-level `{}` hashmap, which still results in stringifying the keys are yields even worse performance
 - trie - the 64 bit key is split into 4-30-30 bit sequence which is used to address a 3-level [trie](https://en.wikipedia.org/wiki/Trie)
 - list - the classic hashmap that uses lists for items with the same hash
 - npmjs [hashmap](https://www.npmjs.com/package/hashmap) stacked like `HashMap<HashMap<int, string>>`
 
 Results are relative to the `{}`/naive hashmap: `2.50` means that this hashmap runs 2.5x slower than `{}`. The `{}`/naive hashmap is also used to verify correctness of other implementations.
 
-|            |     1M-50K |    2M-100K |      3M-5K |
-| ---------- | ---------- | ---------- | ---------- |
-|        es6 |       0.55 |       0.45 |       0.42 |
-|    hashmap |       2.13 |       1.90 |       2.16 |
-|       list |       0.30 |       0.24 |       0.22 |
-|      naive |       1.00 |       1.00 |       1.00 |
-|       trie |       0.68 |       0.55 |       0.52 |
+|              |       1M-50K |      2M-100K |        3M-5K |
+| ------------ | ------------ | ------------ | ------------ |
+|   es6-concat |         1.00 |         0.98 |         0.81 |
+|    es6-stack |         0.57 |         0.49 |         0.55 |
+|      hashmap |         1.95 |         2.13 |         1.99 |
+|         list |         0.41 |         0.27 |         0.25 |
+|  naive-stack |         1.33 |         1.27 |         1.33 |
+|        naive |         1.00 |         1.00 |         1.00 |
+|         trie |         0.75 |         0.74 |         0.58 |
 
 # Build & Run
 
@@ -54,6 +58,10 @@ git clone ...
 npm install
 npm test
 ```
+
+# How to add a new hashmap implementation
+
+Add a new `index.js` file at `/src/js/hashmaps/<name>/index.js`. The `npm test` script will see the new file and run it.
 
 # License
 
