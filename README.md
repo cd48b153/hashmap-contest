@@ -38,18 +38,20 @@ Hashmaps being compared:
 - trie - the 64 bit key is split into 4-30-30 bit sequence which is used to address a 3-level [trie](https://en.wikipedia.org/wiki/Trie)
 - list - the classic hashmap that uses lists for items with the same hash
 - npmjs [hashmap](https://www.npmjs.com/package/hashmap) stacked like `HashMap<HashMap<int, string>>`
+- float64 - converts `(int32, int32)` to `float64` with typed arrays - an idea [suggested](https://habr.com/post/360533/#comment_15991339) by dom1n1k
 
 Results are relative to the `{}`/naive hashmap: `2.50` means that this hashmap runs 2.5x slower than `{}`. The `{}`/naive hashmap is also used to verify correctness of other implementations.
 
 |              |       1M-50K |      2M-100K |        3M-5K |
 | ------------ | ------------ | ------------ | ------------ |
-|   es6-concat |         1.00 |         0.98 |         0.81 |
-|    es6-stack |         0.57 |         0.49 |         0.55 |
-|      hashmap |         1.95 |         2.13 |         1.99 |
-|         list |         0.41 |         0.27 |         0.25 |
-|  naive-stack |         1.33 |         1.27 |         1.33 |
+|   es6-concat |         1.02 |         0.98 |         0.81 |
+|    es6-stack |         0.58 |         0.49 |         0.57 |
+|      float64 |         0.43 |         0.42 |         0.38 |
+|      hashmap |         1.98 |         2.11 |         2.22 |
+|         list |         0.31 |         0.26 |         0.24 |
+|  naive-stack |         1.50 |         1.28 |         1.27 |
 |        naive |         1.00 |         1.00 |         1.00 |
-|         trie |         0.75 |         0.74 |         0.58 |
+|         trie |         0.67 |         0.76 |         0.55 |
 
 # Build & Run
 
