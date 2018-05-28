@@ -1,6 +1,6 @@
 module.exports = class {
     constructor() {
-        this._data = {};
+        this._data = Object.create(null);
     }
 
     get([hi, lo]) {
