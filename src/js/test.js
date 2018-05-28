@@ -6,7 +6,7 @@ const diffByAddrGroupByType = require('./diff');
 
 const COL_WIDTH = 10;
 const DEFAULT_TAGS = Object.keys(fs);
-const REFERENCE_IMPL = 'es6';
+const REFERENCE_IMPL = 'naive';
 
 let implsGlob = process.argv[2];
 let testsGlob = process.argv[3];
@@ -65,7 +65,6 @@ function shuffle(keys, vals) {
 
 function generateTestCase(config) {
     let tags = config.tags || DEFAULT_TAGS;
-    let addr = parseInt(config.base, 16);
 
     let lkeys = [];
     let lvals = [];
@@ -73,10 +72,11 @@ function generateTestCase(config) {
     let rvals = [];
 
     for (let i = 0; i < config.size; i++) {
-        addr += rand(config.nmin, config.nmax);
+        let addr_lo = (Math.random() - 0.5) * 0x7FFFFFFF | 0;
+        let addr_hi = (Math.random() - 0.5) * 0x7FFFFFFF | 0;
 
         let tag = tags[rand(0, tags.length - 1)];
-        let key = config.prefix + lpad(8, '0', addr.toString(16)) + config.suffix;
+        let key = [addr_hi, addr_lo];
 
         rkeys.push(key);
         rvals.push(tag);

@@ -5,9 +5,6 @@ module.exports = class {
         this._next = [];
         this._keys = [];
         this._data = [];
-
-        this._key = null;
-        this._node = null;
     }
 
     reserve(size) {
@@ -17,27 +14,11 @@ module.exports = class {
         this._data.length = size + 1;
     }
 
-    has(key) {
-        let hash = this._hash(key);
-        let node = this._indx[hash] || 0;
-
-        while (node > 0 && this._keys[node] != key)
-            node = this._next[node];
-
-        this._key = key;
-        this._node = node;
-
-        return node > 0;
-    }
-
     get(key) {
-        if (key == this._key)
-            return this._data[this._node];
-
         let hash = this._hash(key);
         let node = this._indx[hash] || 0;
 
-        while (node > 0 && this._keys[node] != key)
+        while (node > 0 && !this._test(node, key))
             node = this._next[node];
 
         return this._data[node];
@@ -47,7 +28,7 @@ module.exports = class {
         let hash = this._hash(key);
         let node = this._indx[hash] || 0, prev = 0;
 
-        while (node > 0 && this._keys[node] != key)
+        while (node > 0 && !this._test(node, key))
             node = this._next[prev = node];
 
         if (node > 0) {
@@ -70,28 +51,14 @@ module.exports = class {
             yield [this._keys[i + 1], this._data[i + 1]];
     }
 
-    _hash(key) {
-        let key_hi = parseInt(key.slice(0, 8), 16);
-        let key_lo = parseInt(key.slice(8), 16);
-
-        let hash = key_hi ^ key_lo;
+    _hash([hi, lo]) {
         let n = this._indx.length;
+        let h = (hi ^ lo) % n;
+        return h < 0 ? h + n : h;
+    }
 
-        let h1 = hash & 255;
-        let h2 = hash >> 8 & 255;
-        let h3 = hash >> 16 & 255;
-        let h4 = hash >> 24 & 255;
-
-        let w1 = 0x81cb45;
-        let w2 = 0xb67181;
-        let w3 = 0x018a73;
-        let w4 = 0x72bc17;
-
-        hash = (hash + h1 * w1 % n) % n;
-        hash = (hash + h2 * w2 % n) % n;
-        hash = (hash + h3 * w3 % n) % n;
-        hash = (hash + h4 * w4 % n) % n;
-
-        return hash < 0 ? hash + n : hash;
+    _test(node, key) {
+        let k = this._keys[node];
+        return k[0] == key[0] && k[1] == key[1];
     }
 };

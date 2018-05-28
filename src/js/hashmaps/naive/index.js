@@ -3,19 +3,18 @@ module.exports = class {
         this._data = {};
     }
 
-    has(key) {
-        return key in this._data;
+    get([hi, lo]) {
+        return this._data[hi + ':' + lo];
     }
 
-    get(key) {
-        return this._data[key];
-    }
-
-    set(key, obj) {
-        this._data[key] = obj;
+    set([hi, lo], obj) {
+        this._data[hi + ':' + lo] = obj;
     }
 
     *entries() {
-        yield* Object.entries(this._data);
+        for (const [key, obj] of Object.entries(this._data)) {
+            let [hi, lo] = key.split(':');
+            yield [[+hi, +lo], obj];
+        }
     }
 };

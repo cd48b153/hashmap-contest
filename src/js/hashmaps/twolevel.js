@@ -1,6 +1,6 @@
-const HashMap = require('hashmap');
+// HashMap<[int, int], T> -> HashMap<HashMap<T>>
 
-module.exports = class {
+module.exports = HashMap => class {
     constructor() {
         this._root = new HashMap;
     }

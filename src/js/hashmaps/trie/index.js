@@ -1,100 +1,48 @@
 module.exports = class {
     constructor() {
-        this._root = [];
+        this.data = [];
+
+        for (let i = 0; i < 16; i++)
+            this.data[i] = [];
     }
 
-    has(key) {
-        let key_hi = key.slice(0, 8);
-        let key_lo = key.slice(8);
+    get([key_hi, key_lo]) {
+        const a = key_hi & 3 | (key_lo & 3) << 2;
+        const b = key_hi >>> 2;
+        const c = key_lo >>> 2;
 
-        let hash_hi = parseInt(key_hi, 16);
-        let hash_lo = parseInt(key_lo, 16);
+        const t = this.data[a][b];
 
-        let hash = hash_hi ^ hash_lo;
-
-        let h1 = hash >> 24 & 255;
-        let h2 = hash >> 16 & 255;
-        let h3 = hash >> 8 & 255;
-        let h4 = hash & 255;
-
-        let node = this._root;
-
-        if (!node) return false; node = node[h1];
-        if (!node) return false; node = node[h2];
-        if (!node) return false; node = node[h3];
-        if (!node) return false; node = node[h4];
-
-        return !!node;
+        return t && t[c];
     }
 
-    get(key) {
-        let key_hi = key.slice(0, 8);
-        let key_lo = key.slice(8);
+    set([key_hi, key_lo], value) {
+        const a = key_hi & 3 | (key_lo & 3) << 2;
+        const b = key_hi >>> 2;
+        const c = key_lo >>> 2;
 
-        let hash_hi = parseInt(key_hi, 16);
-        let hash_lo = parseInt(key_lo, 16);
+        const q = this.data[a];
 
-        let hash = hash_hi ^ hash_lo;
+        if (!q[b])
+            q[b] = [];
 
-        let h1 = hash >> 24 & 255;
-        let h2 = hash >> 16 & 255;
-        let h3 = hash >> 8 & 255;
-        let h4 = hash & 255;
-
-        let node = this._root;
-
-        if (!node) return; node = node[h1];
-        if (!node) return; node = node[h2];
-        if (!node) return; node = node[h3];
-        if (!node) return; node = node[h4];
-
-        return node && node[1];
-    }
-
-    set(key, obj) {
-        let key_hi = key.slice(0, 8);
-        let key_lo = key.slice(8);
-
-        let hash_hi = parseInt(key_hi, 16);
-        let hash_lo = parseInt(key_lo, 16);
-
-        let hash = hash_hi ^ hash_lo;
-
-        let h1 = hash >> 24 & 255;
-        let h2 = hash >> 16 & 255;
-        let h3 = hash >> 8 & 255;
-        let h4 = hash & 255;
-
-        let node = this._root;
-
-        node = node[h1] || (node[h1] = []);
-        node = node[h2] || (node[h2] = []);
-        node = node[h3] || (node[h3] = []);
-
-        node[h4] = [key, obj];
+        q[b][c] = value;
     }
 
     *entries() {
-        let r1 = this._root;
+        for (let a = 0; a < 16; a++) {
+            let p = this.data[a];
 
-        for (let h1 = 0; h1 < r1.length; h1++) {
-            let r2 = r1[h1];
-            if (!r2) continue;
+            for (let _b in p) {
+                let b = +_b;
+                let q = p[_b];
 
-            for (let h2 = 0; h2 < r2.length; h2++) {
-                let r3 = r2[h2];
-                if (!r3) continue;
-
-                for (let h3 = 0; h3 < r3.length; h3++) {
-                    let r4 = r3[h3];
-                    if (!r4) continue;
-
-                    for (let h4 = 0; h4 < r4.length; h4++) {
-                        let entry = r4[h4];
-
-                        if (entry)
-                            yield entry;
-                    }
+                for (let _c in q) {
+                    let c = +_c;
+                    let obj = q[_c];
+                    let key_hi = (a & 3) << 30 | b << 2;
+                    let key_lo = (a >> 2 & 3) | c << 2;
+                    yield [[key_hi, key_lo], obj];
                 }
             }
         }

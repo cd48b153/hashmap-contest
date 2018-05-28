@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "test": "node --max-old-space-size=4096 src/js/test \"src/js/hashmaps/!(hashtable)/index.js\" \"testcases/*.json\""
+        "test": "node --max-old-space-size=4096 src/js/test \"src/js/hashmaps/**/index.js\" \"testcases/*.json\""
     },
     "devDependencies": {
         "hashtable": "^2.0.2",

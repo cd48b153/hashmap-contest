@@ -27,25 +27,25 @@ Comparing different hashmaps that map 64-bit numbers to strings. The benchmark a
 
 The diff should be `{createWriteStream:2, chmod:1}`.
 
+If keys were 32 bit, then the es6 `Map` would be hard to outperform.
+
 Hashmaps being compared:
 
-- es6 - the built-in [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) class.
-- naive - the [object literal](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics) `{}` used as a hashmap
-- trie - the 32-bit number is considered as a 4-byte string and used to address a 4-level [trie](https://en.wikipedia.org/wiki/Trie)
+- es6-stack - the built-in [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) class stacked as `Map<Map<int, string>>` and addressed with `map.get(key_hi).get(key_lo)`
+- naive - the [object literal](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics) `{}` used as a hashmap; the two 32 bit keys are stringified and merged
+- trie - the 64 bit key is convered to a 32-bit hash, which is considered as a 4-byte string and used to address a 4-level [trie](https://en.wikipedia.org/wiki/Trie) + a list for items with the same hash; it's addressed like `trie[h1][h2][h3][h4][17].value`
 - list - the classic hashmap that uses lists for items with the same hash
-- npmjs [hashmap](https://www.npmjs.com/package/hashmap)
-- npmjs [hashtable](https://www.npmjs.com/package/hashtable) - a surprisingly fragile package that needs Python 2.7, VS 2015 build tools, node-gyp and other mess configured in a very particular way - installing it will happily waste many hours of your time; moreover, at runtime it apparently corrupts memory, so it needs to be tested separately, or it just quietly crashes the node process
+- npmjs [hashmap](https://www.npmjs.com/package/hashmap) stacked like `HashMap<HashMap<int, string>>`
 
-Results are relative to the es6 hashmap: `2.50` means that this hashmap runs 2.5x slower than `Map`. The es6 `Map` is also used to verify correctness of other hashmaps.
+Results are relative to the `{}`/naive hashmap: `2.50` means that this hashmap runs 2.5x slower than `{}`. The `{}`/naive hashmap is also used to verify correctness of other implementations.
 
 |            |     1M-50K |    2M-100K |      3M-5K |
 | ---------- | ---------- | ---------- | ---------- |
-|        es6 |       1.00 |       1.00 |       1.00 |
-|    hashmap |       2.20 |       2.26 |       2.29 |
-|       list |       1.33 |       1.19 |       1.29 |
-|      naive |       1.40 |       1.41 |       1.71 |
-|       trie |       1.84 |       1.48 |       1.61 |
-|  hashtable |       2.39 |       2.26 |          - |
+|        es6 |       0.55 |       0.45 |       0.42 |
+|    hashmap |       2.13 |       1.90 |       2.16 |
+|       list |       0.30 |       0.24 |       0.22 |
+|      naive |       1.00 |       1.00 |       1.00 |
+|       trie |       0.68 |       0.55 |       0.52 |
 
 # Build & Run
 
@@ -53,12 +53,6 @@ Results are relative to the es6 hashmap: `2.50` means that this hashmap runs 2.5
 git clone ...
 npm install
 npm test
-```
-
-However if you don't have all the tools for compiling the npmjs `hashtable`, then remove it from `package.json` and from `/src/js/hashmaps`. Alternatively, you can change the glob pattern in `package.json` to skip loading `hastable`:
-
-```
-src/js/hashmaps/!(hashtable)/index.js
 ```
 
 # License
