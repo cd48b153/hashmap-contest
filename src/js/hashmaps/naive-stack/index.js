@@ -1,6 +1,6 @@
 module.exports = class {
     constructor() {
-        this._data = {};
+        this._data = Object.create(null);
     }
 
     get([hi, lo]) {
@@ -9,7 +9,7 @@ module.exports = class {
     }
 
     set([hi, lo], obj) {
-        let node = this._data[hi] || (this._data[hi] = {});
+        let node = this._data[hi] || (this._data[hi] = Object.create(null));
         node[lo] = obj;
     }
 
