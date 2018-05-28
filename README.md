@@ -38,14 +38,14 @@ Hashmaps being compared:
 
 Results are relative to the es6 hashmap: `2.50` means that this hashmap runs 2.5x slower than `Map`. The es6 `Map` is also used to verify correctness of other hashmaps.
 
-|            |     1M-50K |
-| ---------- | ---------- |
-|        es6 |       1.00 |
-|    hashmap |       1.95 |
-|  hashtable |       2.39 |
-|       list |       1.59 |
-|      naive |       1.55 |
-|       trie |       2.13 |
+|            |     1M-50K |    2M-100K |      5M-5K |
+| ---------- | ---------- | ---------- | ---------- |
+|        es6 |       1.00 |       1.00 |       1.00 |
+|    hashmap |       2.38 |       2.29 |       2.28 |
+|       list |       1.26 |       1.31 |       1.33 |
+|      naive |       1.39 |       1.21 |       1.98 |
+|       trie |       1.62 |       2.01 |       1.72 |
+|  hashtable |       2.53 |          - |          - |
 
 # Build & Run
 
@@ -55,7 +55,11 @@ npm install
 npm test
 ```
 
-However if you don't have all the tools for compiling the npmjs `hashtable`, then remove it from `package.json` and from `/src/js/hashmaps`.
+However if you don't have all the tools for compiling the npmjs `hashtable`, then remove it from `package.json` and from `/src/js/hashmaps`. Alternatively, you can change the glob pattern in `package.json` to skip loading `hastable`:
+
+```
+src/js/hashmaps/!(hashtable)/index.js
+```
 
 # License
 

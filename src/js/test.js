@@ -4,8 +4,9 @@ const glob = require('glob');
 
 const diffByAddrGroupByType = require('./diff');
 
+const COL_WIDTH = 10;
+const DEFAULT_TAGS = Object.keys(fs);
 const REFERENCE_IMPL = 'es6';
-const LINE_PATTERN = /^0x([0-9a-f]{16}) (\w+)$/;
 
 let implsGlob = process.argv[2];
 let testsGlob = process.argv[3];
@@ -18,7 +19,7 @@ function log(...args) {
 log('getting hashmap implementations from', implsGlob);
 
 let impls = {}; // impls["es6"] = require("/src/js/hashmaps/es6/index.js")
-let tests = {}; // tests["1M-50K"] = {left: [keys, vals], right: [keys, vals]}
+let tests = {}; // tests["1M-50K"] = config
 
 for (let filepath of glob.sync(implsGlob)) {
     filepath = path.resolve(filepath);
@@ -29,47 +30,73 @@ for (let filepath of glob.sync(implsGlob)) {
 
 log('loading testcases from', testsGlob);
 
-function parseTestCase(text) {
-    let lines = text.split(/\r?\n/); // this might seem slow, but try to do better
-
-    log(text.length >> 20, 'MB', lines.length, 'lines');
-
-    let keys = new Array(lines.length);
-    let vals = new Array(lines.length);
-
-    let i = 0;
-
-    for (let line of lines) {
-        let match = LINE_PATTERN.exec(line);
-
-        if (!match)
-            throw new SyntaxError(`Line ${JSON.stringify(line)} doesn't match pattern ${LINE_PATTERN}`);
-
-        keys[i] = match[1];
-        vals[i] = match[2];
-
-        i++;
-    }
-
-    return [keys, vals];
-}
-
 for (let filepath of glob.sync(testsGlob)) {
     filepath = path.resolve(filepath);
-    let testname = path.dirname(filepath).split(path.sep).pop();
-    let filename = path.basename(filepath, path.extname(filepath));
-    log(testname + ' : ' + filename, '=', filepath);
-    tests[testname] = tests[testname] || {};
-    let text = fs.readFileSync(filepath, 'utf8');
-    let [keys, vals] = parseTestCase(text);
-    tests[testname][filename] = [keys, vals];
+    let testname = path.basename(filepath, path.extname(filepath));
+    log(testname, '=', filepath);
+    tests[testname] = JSON.parse(fs.readFileSync(filepath, 'utf8'));
 }
 
 log('running the testcases');
 
 let results = {}; // results["1M-50K"]["es6"] = 550 ms
 
+let rand = (min, max) => min + ((max - min + 1) * Math.random() | 0);
+let lpad = (n, c, s) => (c.repeat(n) + s).slice(-n);
+
+function swap(a, i, j) {
+    let ai = a[i];
+    let aj = a[j];
+
+    a[i] = aj;
+    a[j] = ai;
+}
+
+function shuffle(keys, vals) {
+    let n = keys.length;
+
+    for (let i = n - 1; i > 0; i--) {
+        let j = rand(0, i - 1);
+
+        swap(keys, i, j);
+        swap(vals, i, j);
+    }
+}
+
+function generateTestCase(config) {
+    let tags = config.tags || DEFAULT_TAGS;
+    let addr = parseInt(config.base, 16);
+
+    let lkeys = [];
+    let lvals = [];
+    let rkeys = [];
+    let rvals = [];
+
+    for (let i = 0; i < config.size; i++) {
+        addr += rand(config.nmin, config.nmax);
+
+        let tag = tags[rand(0, tags.length - 1)];
+        let key = config.prefix + lpad(8, '0', addr.toString(16)) + config.suffix;
+
+        rkeys.push(key);
+        rvals.push(tag);
+
+        if (rand(1, config.size) > config.diff) {
+            lkeys.push(key);
+            lvals.push(tag);
+        }
+    }
+
+    shuffle(lkeys, lvals);
+    shuffle(rkeys, rvals);
+
+    return [lkeys, lvals, rkeys, rvals];
+}
+
 function compareDiffs(a, b) {
+    if (a === b)
+        return true;
+
     for (let x in a)
         if (a[x] != b[x])
             return false;
@@ -81,12 +108,12 @@ function compareDiffs(a, b) {
     return true;
 }
 
-for (let [testname, test] of Object.entries(tests)) {
-    let left = test.left;
-    let right = test.right;
+for (let [testname, testconfig] of Object.entries(tests)) {
+    log('generating testcase', testname);
 
-    if (!left || !right)
-        throw new Error(`Testcase ${testname} doesn't have either "left" or "right" data`);
+    let [lkeys, lvals, rkeys, rvals] = generateTestCase(testconfig); // this can be over 1 GB
+
+    log('testcase size:', lkeys.length, 'vs', rkeys.length, 'entries');
 
     let diffs = {}; // diffs["es6"] = {foo:4, bar:5}
     let times = {}; // times["es6"] = 400 ms
@@ -96,25 +123,20 @@ for (let [testname, test] of Object.entries(tests)) {
         log('diffing', testname, 'with', implname);
         let impl = impls[implname];
         let time = Date.now();
-        let diff = diffByAddrGroupByType(impl, left, right);
+        let diff = diffByAddrGroupByType(impl, [lkeys, lvals], [rkeys, rvals]);
         time = Date.now() - time;
         times[implname] = time;
         diffs[implname] = diff;
+        valid[implname] = compareDiffs(diffs[implname], diffs[REFERENCE_IMPL]);
+        log('result:', time, 'ms,', 'valid:', valid[implname]);
     };
 
-    runTestCase(REFERENCE_IMPL); // it's the reference and others will check against this result
-    valid[REFERENCE_IMPL] = true;
+    runTestCase(REFERENCE_IMPL); // it's the reference so run it first
+    log('diff size:', Object.keys(diffs[REFERENCE_IMPL]).length);
 
-    for (let name in impls) {
-        if (name == REFERENCE_IMPL)
-            continue;
-
-        runTestCase(name);
-
-        let same = compareDiffs(diffs[name], diffs[REFERENCE_IMPL]);
-        !same && log('hashmap', JSON.stringify(name), 'produced a wrong diff');
-        valid[name] = same;
-    }
+    for (let name in impls)
+        if (name != REFERENCE_IMPL)
+            runTestCase(name);
 
     results[testname] = {};
 
@@ -122,18 +144,16 @@ for (let [testname, test] of Object.entries(tests)) {
         results[testname][name] = valid[name] ? times[name] / times[REFERENCE_IMPL] : 0;
 }
 
-let colwidth = 10;
-let lpad = (s, n = colwidth, c = ' ') => (c.repeat(n) + s).slice(-n);
 let cells = [];
 
 cells.push(['', ...Object.keys(tests)]);
-cells.push('-'.repeat(Object.keys(tests).length + 1).split('').map(c => c.repeat(colwidth)))
+cells.push('-'.repeat(Object.keys(tests).length + 1).split('').map(c => c.repeat(COL_WIDTH)))
 
 for (let implname in impls)
     cells.push([implname, ...Object.keys(tests).map(testname => results[testname][implname].toFixed(2))]);
 
 log('results:\n' + cells.map(
     line => '| ' + line.map(
-        cell => lpad(cell))
+        cell => lpad(COL_WIDTH, ' ', cell))
         .join(' | ') + ' |')
     .join('\n'));
